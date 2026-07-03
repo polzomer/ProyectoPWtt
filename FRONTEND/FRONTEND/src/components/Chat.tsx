@@ -26,6 +26,7 @@ export default function Chat() {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { streamId } = useParams();
 
+  // Simula mensajes de espectadores aleatorios cada 5 segundos
   useEffect(() => {
     let mounted = true;
     let timer: number | undefined;
@@ -43,18 +44,20 @@ export default function Chat() {
     return () => { mounted = false; if (timer) window.clearTimeout(timer); };
   }, []);
 
+  // Sincroniza el usuario activo cuando cambia (login/logout)
   useEffect(() => {
     const handler = () => setUser(getActiveUser());
-    window.addEventListener('userChanged', handler as any);
-    return () => window.removeEventListener('userChanged', handler as any);
+    window.addEventListener('userChanged', handler);
+    return () => window.removeEventListener('userChanged', handler);
   }, []);
 
+  // Auto-scroll al último mensaje si el usuario está cerca del final
   useEffect(() => {
     if (chatMessagesRef.current) {
       const el = chatMessagesRef.current;
       const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
       if (distanceToBottom < 10) {
-        el.scrollTop = el.scrollTop;
+        el.scrollTop = el.scrollHeight;
       }
     }
   }, [messages]);
@@ -70,6 +73,7 @@ export default function Chat() {
     await addChatMessage({ stream_id: sid, usuario_id: user.id, alias: user.name, nivel: oldLevelName, texto: newMessage.trim() });
     const refreshed = await getUser(user.id);
     const newLevelName = refreshed.nivel_actual || getLevelInfo(refreshed.puntos).currentLevelName;
+    // Notifica al usuario si subió de nivel al enviar un mensaje
     if (oldLevelName !== newLevelName) {
       updateUser({ ...user, points: refreshed.puntos, nivel_actual: newLevelName } as any);
       showNotification(`🎉 ¡Felicidades, ${user.name}! 🎉\n\nHas subido al nivel de espectador: ${newLevelName}`);
