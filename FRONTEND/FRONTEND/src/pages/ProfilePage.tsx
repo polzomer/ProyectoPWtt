@@ -65,7 +65,7 @@ export default function ProfilePage() {
         {levelInfo.nextLevelName ? (
           <p className="motivation">Faltan {levelInfo.pointsToNextLevel} puntos para {levelInfo.nextLevelName}.</p>
         ) : (
-          <p className="motivation">Has alcanzado el nivel máximo.</p>
+          <p className="motivation">Alcanzaste el nivel máximo.</p>
         )}
       </div>
 
